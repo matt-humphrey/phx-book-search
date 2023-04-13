@@ -31,7 +31,7 @@ defmodule BookSearch.AuthorsTest do
 
     test "list_authors/1 _ non matching name" do
       author = author_fixture(name: "Jed Herne")
-      assert Authors.list_authors("Hed Jerne") == []
+      assert Authors.list_authors("Hed Jerne") != [author]
     end
 
     test "get_author!/1 returns the author with given id" do

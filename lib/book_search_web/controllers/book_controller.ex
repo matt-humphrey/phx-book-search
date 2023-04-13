@@ -3,6 +3,7 @@ defmodule BookSearchWeb.BookController do
 
   alias BookSearch.Books
   alias BookSearch.Books.Book
+  alias BookSearch.Authors
 
   def index(conn, _params) do
     books = Books.list_books() |> BookSearch.Repo.preload([:author])
@@ -11,7 +12,8 @@ defmodule BookSearchWeb.BookController do
 
   def new(conn, _params) do
     changeset = Books.change_book(%Book{})
-    render(conn, "new.html", changeset: changeset)
+    authors = Authors.list_authors()
+    render(conn, "new.html", changeset: changeset, authors: authors)
   end
 
   def create(conn, %{"book" => book_params}) do
@@ -22,7 +24,8 @@ defmodule BookSearchWeb.BookController do
         |> redirect(to: Routes.book_path(conn, :show, book))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "new.html", changeset: changeset)
+        authors = Authors.list_authors()
+        render(conn, "new.html", changeset: changeset, authors: authors)
     end
   end
 
@@ -34,7 +37,8 @@ defmodule BookSearchWeb.BookController do
   def edit(conn, %{"id" => id}) do
     book = Books.get_book!(id)
     changeset = Books.change_book(book)
-    render(conn, "edit.html", book: book, changeset: changeset)
+    authors = Authors.list_authors()
+    render(conn, "edit.html", book: book, changeset: changeset, authors: authors)
   end
 
   def update(conn, %{"id" => id, "book" => book_params}) do
@@ -47,7 +51,8 @@ defmodule BookSearchWeb.BookController do
         |> redirect(to: Routes.book_path(conn, :show, book))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", book: book, changeset: changeset)
+        authors = Authors.list_authors()
+        render(conn, "edit.html", book: book, changeset: changeset, authors: authors)
     end
   end
 
