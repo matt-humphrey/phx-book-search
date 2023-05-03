@@ -2,15 +2,15 @@ defmodule BookSearch.BooksTest do
   use BookSearch.DataCase
 
   alias BookSearch.Books
+  alias BookSearch.Books.Book
+
+  import BookSearch.BooksFixtures
+  import BookSearch.AuthorsFixtures
+  import BookSearch.TagsFixtures
+
+  @invalid_attrs %{title: nil}
 
   describe "books" do
-    alias BookSearch.Books.Book
-
-    import BookSearch.BooksFixtures
-    import BookSearch.AuthorsFixtures
-
-    @invalid_attrs %{title: nil}
-
     test "list_books/0 returns all books" do
       book = book_fixture()
       assert Books.list_books() == [book]
@@ -41,6 +41,16 @@ defmodule BookSearch.BooksTest do
       assert book.author_id == author.id
     end
 
+    test "create_book/1 with associated tags" do
+      tag1 = tag_fixture(name: "tag1")
+      tag2 = tag_fixture(name: "tag2")
+      valid_attrs = %{"title" => "some title"}
+
+      assert {:ok, %Book{} = book} = Books.create_book(valid_attrs, [tag1, tag2])
+      assert book.title == "some title"
+      assert book.tags == [tag1, tag2]
+    end
+
     test "update_book/2 with valid data updates the book" do
       book = book_fixture()
       update_attrs = %{title: "some updated title"}
@@ -65,6 +75,21 @@ defmodule BookSearch.BooksTest do
       assert {:ok, %Book{} = book} = Books.update_book(book, update_attrs)
       assert book.title == "some updated title"
       assert book.author_id == updated_author.id
+    end
+
+    test "update_book/2 with associated tags" do
+      author = author_fixture()
+      original_tag1 = tag_fixture(name: "tag1")
+      original_tag2 = tag_fixture(name: "tag2")
+      updated_tag1 = tag_fixture(name: "new_tag1")
+      updated_tag2 = tag_fixture(name: "new_tag2")
+      book = book_fixture([author_id: author.id], [original_tag1, original_tag2])
+
+      update_attrs_with_tags = %{title: "some updated title"}
+
+      assert {:ok, %Book{} = book} = Books.update_book(book, update_attrs_with_tags, [updated_tag1, updated_tag2])
+      assert book.title == "some updated title"
+      assert book.tags == [updated_tag1, updated_tag2]
     end
 
     test "delete_book/1 deletes the book" do

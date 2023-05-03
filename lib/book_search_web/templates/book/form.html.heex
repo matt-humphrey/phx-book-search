@@ -13,6 +13,10 @@
   <%= select f, :author_id, Enum.map(@authors, fn author -> {author.name, author.id} end), prompt: "Select an author" %>
   <%= error_tag f, :author_id %>
 
+  <%= label f, :tags %>
+  <%= multiple_select f, :tags, tag_options(), selected: assigns[:tag_ids] || [] %>
+  <%= error_tag f, :tags %>
+
   <div>
     <%= submit "Save" %>
   </div>

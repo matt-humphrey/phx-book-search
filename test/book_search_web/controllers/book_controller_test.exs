@@ -3,6 +3,7 @@ defmodule BookSearchWeb.BookControllerTest do
 
   import BookSearch.BooksFixtures
   import BookSearch.AuthorsFixtures
+  import BookSearch.TagsFixtures
 
   @create_attrs %{title: "some title"}
   @update_attrs %{title: "some updated title"}
@@ -49,6 +50,25 @@ defmodule BookSearchWeb.BookControllerTest do
       conn = get(conn, Routes.book_path(conn, :show, id))
       assert html_response(conn, 200) =~ author.name
     end
+
+    test "create book with tags", %{conn: conn} do
+      tag1 = tag_fixture(name: "tag1")
+      tag2 = tag_fixture(name: "tag2")
+
+      create_attrs_with_tags = Map.put(@create_attrs, "tags", [tag1.id, tag2.id])
+
+      conn = post(conn, Routes.book_path(conn, :create), book: create_attrs_with_tags)
+
+      assert %{id: id} = redirected_params(conn)
+      assert redirected_to(conn) == Routes.book_path(conn, :show, id)
+
+      conn = get(conn, Routes.book_path(conn, :show, id))
+
+      response = html_response(conn, 200)
+      assert response =~ "Show Book"
+      assert response =~ tag1.name
+      assert response =~ tag2.name
+    end
   end
 
   describe "edit book" do
@@ -92,6 +112,25 @@ defmodule BookSearchWeb.BookControllerTest do
       assert response =~ updated_author.name
     end
 
+    test "update book with multiple tags", %{conn: conn, book: book} do
+      original_tag1 = tag_fixture(name: "og_tag1")
+      original_tag2 = tag_fixture(name: "og_tag2")
+      updated_tag1 = tag_fixture(name: "new_tag1")
+      updated_tag2 = tag_fixture(name: "new_tag2")
+
+      book = Map.put(book, "tags", [original_tag1.id, original_tag2.id])
+      update_attrs_with_tags = Map.put(@update_attrs, "tags", [updated_tag1.id, updated_tag2.id])
+
+      conn = put(conn, Routes.book_path(conn, :update, book), book: update_attrs_with_tags)
+      assert redirected_to(conn) == Routes.book_path(conn, :show, book)
+
+      conn = get(conn, Routes.book_path(conn, :show, book))
+      response = html_response(conn, 200)
+
+      assert response =~ "some updated title"
+      assert response =~ updated_tag1.name
+      assert response =~ updated_tag2.name
+    end
   end
 
   describe "delete book" do
