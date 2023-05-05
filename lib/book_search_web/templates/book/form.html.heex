@@ -17,6 +17,12 @@
   <%= multiple_select f, :tags, tag_options(), selected: assigns[:tag_ids] || [] %>
   <%= error_tag f, :tags %>
 
+  <%= inputs_for f, :book_content, fn book_content_form -> %>
+    <%= label book_content_form, :full_text %>
+    <%= text_input book_content_form, :full_text %>
+    <%= error_tag book_content_form, :full_text %>
+  <% end %>
+
   <div>
     <%= submit "Save" %>
   </div>

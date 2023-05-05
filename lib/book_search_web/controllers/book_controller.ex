@@ -34,12 +34,12 @@ defmodule BookSearchWeb.BookController do
   end
 
   def show(conn, %{"id" => id}) do
-    book = Books.get_book!(id) |> BookSearch.Repo.preload([:author, :tags])
+    book = Books.get_book!(id) |> BookSearch.Repo.preload([:author, :tags, :book_content])
     render(conn, "show.html", book: book)
   end
 
   def edit(conn, %{"id" => id}) do
-    book = Books.get_book!(id)
+    book = Books.get_book!(id) |> BookSearch.Repo.preload(:book_content)
     tag_ids = Enum.map(book.tags, & &1.id)
 
     changeset = Books.change_book(book)

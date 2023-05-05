@@ -69,6 +69,28 @@ defmodule BookSearchWeb.BookControllerTest do
       assert response =~ tag1.name
       assert response =~ tag2.name
     end
+
+    test "create a book with associated book content", %{conn: conn} do
+      # Create a map called "book_content" with a key-value pair for the "full_text" field
+      book_content = %{full_text: "some full text"}
+      # Add the "book_content" map to the "create_attrs" map as a value for the "book_content" key
+      create_attrs_with_book_content = Map.put(@create_attrs, :book_content, book_content)
+
+      # Make a POST request to the "Routes.book_path(conn, :create)" route with the modified "create_attrs_with_book_content" map as the request body
+      conn = post(conn, Routes.book_path(conn, :create), book: create_attrs_with_book_content)
+
+      # Assert that the response is a redirect, and that the "id" parameter is present in the redirect parameters
+      assert %{id: id} = redirected_params(conn)
+      assert redirected_to(conn) == Routes.book_path(conn, :show, id)
+
+      # Make a GET request to the "Routes.book_path(conn, :show, id)" route, using the "id" from the previous step
+      conn = get(conn, Routes.book_path(conn, :show, id))
+
+      # Assert that the response has a status code of 200 and that the response body contains the strings "Show Book" and the "full_text" value from the "book_content" map
+      response = html_response(conn, 200)
+      assert response =~ "Show Book"
+      assert response =~ book_content.full_text
+    end
   end
 
   describe "edit book" do

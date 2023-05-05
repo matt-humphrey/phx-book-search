@@ -51,6 +51,14 @@ defmodule BookSearch.BooksTest do
       assert book.tags == [tag1, tag2]
     end
 
+    test "create_book/1 with book content creates a book with associated book content" do
+      valid_attrs = %{title: "some title", book_content: %{full_text: "some full text"}}
+
+      assert {:ok, %Book{} = book} = Books.create_book(valid_attrs)
+      assert book.title == "some title"
+      assert book.book_content.full_text == "some full text"
+    end
+
     test "update_book/2 with valid data updates the book" do
       book = book_fixture()
       update_attrs = %{title: "some updated title"}
@@ -90,6 +98,14 @@ defmodule BookSearch.BooksTest do
       assert {:ok, %Book{} = book} = Books.update_book(book, update_attrs_with_tags, [updated_tag1, updated_tag2])
       assert book.title == "some updated title"
       assert book.tags == [updated_tag1, updated_tag2]
+    end
+
+    test "update_book/2 with book content book's associated book content" do
+      book = book_fixture()
+      update_attrs = %{book_content: %{full_text: "updated full text"}}
+
+      assert {:ok, %Book{} = book} = Books.update_book(book, update_attrs)
+      assert book.book_content.full_text == "updated full text"
     end
 
     test "delete_book/1 deletes the book" do
